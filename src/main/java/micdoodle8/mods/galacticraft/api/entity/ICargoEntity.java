@@ -36,5 +36,5 @@ public interface ICargoEntity
 
     EnumCargoLoadingState addCargo(ItemStack stack, boolean doAdd);
 
-    RemovalResult removeCargo(boolean doRemove);
+    RemovalResult removeCargo(boolean doRemove, int count);
 }

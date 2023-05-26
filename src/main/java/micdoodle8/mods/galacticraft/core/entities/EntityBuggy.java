@@ -775,7 +775,7 @@ public class EntityBuggy extends Entity implements IInventory, IPacketReceiver, 
     }
 
     @Override
-    public RemovalResult removeCargo(boolean doRemove)
+    public RemovalResult removeCargo(boolean doRemove, int count)
     {
         for (int i = 0; i < this.stacks.size(); i++)
         {

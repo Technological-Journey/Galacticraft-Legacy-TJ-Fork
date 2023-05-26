@@ -7,6 +7,7 @@
 
 package micdoodle8.mods.galacticraft.core.inventory;
 
+import micdoodle8.mods.galacticraft.core.tile.TileEntityAdvanced;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
@@ -23,18 +24,18 @@ import micdoodle8.mods.galacticraft.core.energy.tile.TileBaseElectricBlock;
 public class ContainerCargoLoader extends Container
 {
 
-    private TileBaseElectricBlock tileEntity;
+    private TileEntityAdvanced tileEntity;
     private boolean locked;
 
     public ContainerCargoLoader(InventoryPlayer par1InventoryPlayer, IInventory cargoLoader)
     {
-        this.tileEntity = (TileBaseElectricBlock) cargoLoader;
+        this.tileEntity = (TileEntityAdvanced) cargoLoader;
         if (tileEntity instanceof ILockable)
         {
             this.locked = ((ILockable) tileEntity).getLocked();
         }
 
-        this.addSlotToContainer(new SlotSpecific(cargoLoader, 0, 10, 27, IItemElectric.class));
+//        this.addSlotToContainer(new SlotSpecific(cargoLoader, 0, 10, 27, IItemElectric.class));
 
         int var6;
         int var7;
@@ -92,25 +93,19 @@ public class ContainerCargoLoader extends Container
 
             if (par2 < 15)
             {
-                if ((this.locked && par2 > 0) || !this.mergeItemStack(var5, 15, 51, true))
+                if ((this.locked && par2 > 0) || !this.mergeItemStack(var5, 15, 50, true))
                 {
                     return ItemStack.EMPTY;
                 }
             } else
             {
-                if (EnergyUtil.isElectricItem(var5.getItem()))
+                if (par2 < 42)
                 {
-                    if (!this.mergeItemStack(var5, 0, 1, false))
+                    if ((this.locked || !this.mergeItemStack(var5, 0, 14, false)) && !this.mergeItemStack(var5, 42, 50, false))
                     {
                         return ItemStack.EMPTY;
                     }
-                } else if (par2 < 42)
-                {
-                    if ((this.locked || !this.mergeItemStack(var5, 1, 15, false)) && !this.mergeItemStack(var5, 42, 51, false))
-                    {
-                        return ItemStack.EMPTY;
-                    }
-                } else if ((this.locked || !this.mergeItemStack(var5, 1, 15, false)) && !this.mergeItemStack(var5, 15, 42, false))
+                } else if ((this.locked || !this.mergeItemStack(var5, 0, 14, false)) && !this.mergeItemStack(var5, 14, 42, false))
                 {
                     return ItemStack.EMPTY;
                 }

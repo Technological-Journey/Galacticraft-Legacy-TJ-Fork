@@ -1236,7 +1236,7 @@ public abstract class EntityAutoRocket extends EntitySpaceshipBase implements IL
     }
 
     @Override
-    public RemovalResult removeCargo(boolean doRemove)
+    public RemovalResult removeCargo(boolean doRemove, int count)
     {
         for (int i = 0; i < this.stacks.size() - 2; i++)
         {
@@ -1244,12 +1244,13 @@ public abstract class EntityAutoRocket extends EntitySpaceshipBase implements IL
 
             if (!stackAt.isEmpty())
             {
+				count = Math.min(count,stackAt.getCount());
                 ItemStack resultStack = stackAt.copy();
-                resultStack.setCount(1);
+                resultStack.setCount(count);
 
                 if (doRemove)
                 {
-                    stackAt.shrink(1);
+                    stackAt.shrink(count);
                 }
 
                 if (doRemove)

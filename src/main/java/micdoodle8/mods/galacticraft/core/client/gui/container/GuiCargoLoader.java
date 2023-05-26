@@ -58,21 +58,21 @@ public class GuiCargoLoader extends GuiContainerGC
     public void initGui()
     {
         super.initGui();
-        List<String> electricityDesc = new ArrayList<String>();
-        electricityDesc.add(GCCoreUtil.translate("gui.energy_storage.desc.0"));
-        electricityDesc.add(EnumColor.YELLOW + GCCoreUtil.translate("gui.energy_storage.desc.1")
-            + ((int) Math.floor(this.cargoLoader.getEnergyStoredGC()) + " / " + (int) Math.floor(this.cargoLoader.getMaxEnergyStoredGC())));
-        this.electricInfoRegion.tooltipStrings = electricityDesc;
-        this.electricInfoRegion.xPosition = (this.width - this.xSize) / 2 + 107;
-        this.electricInfoRegion.yPosition = (this.height - this.ySize) / 2 + 101;
-        this.electricInfoRegion.parentWidth = this.width;
-        this.electricInfoRegion.parentHeight = this.height;
-        this.infoRegions.add(this.electricInfoRegion);
-        List<String> batterySlotDesc = new ArrayList<String>();
-        batterySlotDesc.add(GCCoreUtil.translate("gui.battery_slot.desc.0"));
-        batterySlotDesc.add(GCCoreUtil.translate("gui.battery_slot.desc.1"));
-        this.infoRegions.add(new GuiElementInfoRegion((this.width - this.xSize) / 2 + 9, (this.height - this.ySize) / 2 + 26, 18, 18, batterySlotDesc, this.width, this.height, this));
-        this.buttonList.add(this.buttonLoadItems = new GuiButton(0, this.width / 2 - 1, this.height / 2 - 23, 76, 20, GCCoreUtil.translate("gui.button.loaditems.name")));
+//        List<String> electricityDesc = new ArrayList<String>();
+//        electricityDesc.add(GCCoreUtil.translate("gui.energy_storage.desc.0"));
+//        electricityDesc.add(EnumColor.YELLOW + GCCoreUtil.translate("gui.energy_storage.desc.1")
+//            + ((int) Math.floor(this.cargoLoader.getEnergyStoredGC()) + " / " + (int) Math.floor(this.cargoLoader.getMaxEnergyStoredGC())));
+//        this.electricInfoRegion.tooltipStrings = electricityDesc;
+//        this.electricInfoRegion.xPosition = (this.width - this.xSize) / 2 + 107;
+//        this.electricInfoRegion.yPosition = (this.height - this.ySize) / 2 + 101;
+//        this.electricInfoRegion.parentWidth = this.width;
+//        this.electricInfoRegion.parentHeight = this.height;
+//        this.infoRegions.add(this.electricInfoRegion);
+//        List<String> batterySlotDesc = new ArrayList<String>();
+//        batterySlotDesc.add(GCCoreUtil.translate("gui.battery_slot.desc.0"));
+//        batterySlotDesc.add(GCCoreUtil.translate("gui.battery_slot.desc.1"));
+//        this.infoRegions.add(new GuiElementInfoRegion((this.width - this.xSize) / 2 + 9, (this.height - this.ySize) / 2 + 26, 18, 18, batterySlotDesc, this.width, this.height, this));
+//        this.buttonList.add(this.buttonLoadItems = new GuiButton(0, this.width / 2 - 1, this.height / 2 - 23, 76, 20, GCCoreUtil.translate("gui.button.loaditems.name")));
     }
 
     @Override
@@ -81,8 +81,8 @@ public class GuiCargoLoader extends GuiContainerGC
         int offsetX = -17;
         int offsetY = 45;
         this.fontRenderer.drawString(this.cargoLoader.getName(), 60, 12, 4210752);
-        this.buttonLoadItems.enabled = this.cargoLoader.disableCooldown == 0;
-        this.buttonLoadItems.displayString = !this.cargoLoader.getDisabled(0) ? GCCoreUtil.translate("gui.button.stoploading.name") : GCCoreUtil.translate("gui.button.loaditems.name");
+//        this.buttonLoadItems.enabled = true;
+//        this.buttonLoadItems.displayString = !this.cargoLoader.getDisabled(0) ? GCCoreUtil.translate("gui.button.stoploading.name") : GCCoreUtil.translate("gui.button.loaditems.name");
         this.fontRenderer.drawString(GCCoreUtil.translate("gui.message.status.name") + ": " + this.getStatus(), 28 + offsetX, 45 + 23 - 46 + offsetY, 4210752);
         // this.fontRenderer.drawString("" +
         // this.cargoLoader.storage.getMaxExtract(), 28 + offsetX, 56 + 23 - 46
@@ -112,7 +112,7 @@ public class GuiCargoLoader extends GuiContainerGC
             return EnumColor.DARK_RED + GCCoreUtil.translate("gui.status.targetfull.name");
         }
 
-        return this.cargoLoader.getGUIstatus();
+		return EnumColor.ORANGE + GCCoreUtil.translate("gui.status.ready.name");
     }
 
     @Override
@@ -124,17 +124,17 @@ public class GuiCargoLoader extends GuiContainerGC
         final int var6 = (this.height - this.ySize) / 2;
         this.drawTexturedModalRect(var5, var6 + 5, 0, 0, this.xSize, this.ySize);
 
-        List<String> electricityDesc = new ArrayList<String>();
-        electricityDesc.add(GCCoreUtil.translate("gui.energy_storage.desc.0"));
-        EnergyDisplayHelper.getEnergyDisplayTooltip(this.cargoLoader.getEnergyStoredGC(), this.cargoLoader.getMaxEnergyStoredGC(), electricityDesc);
-//		electricityDesc.add(EnumColor.YELLOW + GCCoreUtil.translate("gui.energy_storage.desc.1") + ((int) Math.floor(this.cargoLoader.getEnergyStoredGC()) + " / " + (int) Math.floor(this.cargoLoader.getMaxEnergyStoredGC())));
-        this.electricInfoRegion.tooltipStrings = electricityDesc;
-
-        if (this.cargoLoader.getEnergyStoredGC() > 0)
-        {
-            this.drawTexturedModalRect(var5 + 94, var6 + 101, 176, 0, 11, 10);
-        }
-
-        this.drawTexturedModalRect(var5 + 108, var6 + 102, 187, 0, Math.min(this.cargoLoader.getScaledElecticalLevel(54), 54), 7);
+//        List<String> electricityDesc = new ArrayList<String>();
+//        electricityDesc.add(GCCoreUtil.translate("gui.energy_storage.desc.0"));
+//        EnergyDisplayHelper.getEnergyDisplayTooltip(this.cargoLoader.getEnergyStoredGC(), this.cargoLoader.getMaxEnergyStoredGC(), electricityDesc);
+////		electricityDesc.add(EnumColor.YELLOW + GCCoreUtil.translate("gui.energy_storage.desc.1") + ((int) Math.floor(this.cargoLoader.getEnergyStoredGC()) + " / " + (int) Math.floor(this.cargoLoader.getMaxEnergyStoredGC())));
+//        this.electricInfoRegion.tooltipStrings = electricityDesc;
+//
+//        if (this.cargoLoader.getEnergyStoredGC() > 0)
+//        {
+//            this.drawTexturedModalRect(var5 + 94, var6 + 101, 176, 0, 11, 10);
+//        }
+//
+//        this.drawTexturedModalRect(var5 + 108, var6 + 102, 187, 0, Math.min(this.cargoLoader.getScaledElecticalLevel(54), 54), 7);
     }
 }

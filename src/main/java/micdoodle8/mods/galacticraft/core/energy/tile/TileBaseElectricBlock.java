@@ -80,14 +80,10 @@ public abstract class TileBaseElectricBlock extends TileBaseUniversalElectrical 
                 if (this.shouldUseEnergy())
                 {
                     this.storage.extractEnergyGC(this.storage.getMaxExtract(), false);
-                } else
-                {
-                    this.slowDischarge();
                 }
             } else
             {
                 this.hasEnoughEnergyToRun = false;
-                this.slowDischarge();
             }
         }
 
@@ -142,7 +138,7 @@ public abstract class TileBaseElectricBlock extends TileBaseUniversalElectrical 
             this.disableCooldown = 10;
         }
     }
-    
+
     public abstract EnumFacing getFront();
 
     public EnumFacing byIndex() {

@@ -194,11 +194,11 @@ public class TileEntityBuggyFueler extends TileEntityMulti implements IMultiBloc
     }
 
     @Override
-    public RemovalResult removeCargo(boolean doRemove)
+    public RemovalResult removeCargo(boolean doRemove, int count)
     {
         if (this.dockedEntity != null)
         {
-            return this.dockedEntity.removeCargo(doRemove);
+            return this.dockedEntity.removeCargo(doRemove, count);
         }
 
         return new RemovalResult(EnumCargoLoadingState.NOTARGET, ItemStack.EMPTY);
