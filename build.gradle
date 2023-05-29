@@ -1,141 +1,180 @@
+//file:noinspection DependencyNotationArgument
+import org.jetbrains.gradle.ext.Gradle
+
 plugins {
     id 'java'
+    id 'java-library'
     id 'eclipse'
-    id 'org.cadixdev.licenser' version '0.6.1'
-    id 'com.diffplug.spotless' version '6.13.0'
-    id 'net.minecraftforge.gradle' version '5.1.+'
-    id 'net.galacticraft.internal.legacy' version '1.0.0'
-    id 'net.galacticraft.internal.maven' version '1.0.1'
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.7'
+    id 'com.gtnewhorizons.retrofuturagradle' version '1.3.+'
 }
 
-group = "dev.galacticraft"
-archivesBaseName = "Galacticraft"
-version = "${mod_version}${version_suffix}"
+group = project.maven_group
+archivesBaseName = project.archives_base_name
+version = project.mod_version
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+java {
+    toolchain {
+        vendor.set(JvmVendorSpec.AZUL)
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    if (it.name in ['compileMcLauncherJava', 'compilePatchedMcJava']) {
+        return
+    }
+
+    options.encoding 'UTF-8'
+
+    sourceCompatibility = '17'
+    targetCompatibility = '8'
+    options.release.set(Integer.parseInt('8'))
+
+    javaCompiler.set(javaToolchains.compilerFor {
+        vendor.set(JvmVendorSpec.AZUL)
+        languageVersion.set(JavaLanguageVersion.of('17'))
+    })
+}
+
+configurations {
+    embed
+    implementation.extendsFrom(embed)
+}
+
+minecraft {
+    mcVersion = project.mc_version
+    def args = [
+            "-ea:${project.group}",
+            "-Dfml.coreMods.load=${coremod_plugin_class_name}"
+    ]
+    extraRunJvmArguments.addAll(args)
+
+    useDependencyAccessTransformers = true
+
+    injectedTags.put('VERSION', project.version)
+}
+
+tasks.injectTags.configure {
+    outputClassName.set('micdoodle8.mods.galacticraft.core.Tags')
+}
 
 repositories {
-    mavenCentral()
     maven {
-        name 'galacticraft'
-        url 'https://maven.galacticraft.net/repository/legacy-common/'
+        // JEI
+        name 'BlameJared Maven'
+        url 'https://maven.blamejared.com'
+    }
+    maven {
+        // Buildcraft
+        name 'Buildcraft Maven'
+        url 'https://mod-buildcraft.com/maven'
+    }
+    maven {
+        name 'Curse Maven'
+        url 'https://www.cursemaven.com'
+        content {
+            includeGroup 'curse.maven'
+        }
     }
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+    implementation rfg.deobf('curse.maven:mekanism-268560:2835175') // Mekanism 9.8.3.390
+    implementation rfg.deobf('curse.maven:industrial-craft-242638:3838713') // IC2exp 2.8.222-ex112
+    implementation 'com.mod-buildcraft:buildcraft-api:7.99.24.8'
+    implementation 'mezz.jei:jei_1.12.2:4.16.1.302'
 
-    compileRequired fg.deobf('mod.dependency:mekanism:9.8.3.390')
-    compileRequired fg.deobf('mod.dependency:industrialcraft-2:2.8.222-ex112')
-    compileRequired fg.deobf('mod.dependency:buildcraft-api:7.99.24.8')
-    compileOnly fg.deobf('mod.dependency:biomes-o-plenty:7.0.1.2445')
-    compileOnly fg.deobf('mod.dependency:appliedenergistics2:rv6-stable-7')
-    compileOnly fg.deobf('mod.dependency:redstoneflux:2.1.1.1')
-    compileOnly fg.deobf('mod.dependency:actuallyadditions:r152')
-    compileOnly fg.deobf('mod.dependency:playerapi:1.1')
-    compileOnly fg.deobf('mod.dependency:journeymap:5.7.1')
-    compileOnly fg.deobf('mod.dependency:jei:4.16.1.302:api')
-    runtimeOnly fg.deobf('mod.dependency:jei:4.16.1.302')
-    
-    // Project lombok
-    compileOnly 'org.projectlombok:lombok:1.18.24'
+    compileOnlyApi rfg.deobf('curse.maven:biomes-o-plenty-220318:3558882') // Biomes O' Plenty 7.0.1.2445
+    compileOnlyApi rfg.deobf('curse.maven:ae2-extended-life-570458:4553942') // AE2UEL 0.55.14
+    compileOnlyApi rfg.deobf('curse.maven:redstone-flux-270789:2920436') // Redstone Flux 2.1.1.1
+    compileOnlyApi rfg.deobf('curse.maven:actually-additions-228404:3117927') // Actually Additions r152
+    compileOnlyApi rfg.deobf('curse.maven:playerapi-449521:3212872') // PlayerAPI 1.1
+    compileOnlyApi rfg.deobf('curse.maven:journeymap-32274:2916002') // JourneyMap 5.7.1
+
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    testCompileOnly 'org.projectlombok:lombok:1.18.24'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'com.github.bsideup.jabel:jabel-javac-plugin:1.0.0'
+    compileOnly('com.github.bsideup.jabel:jabel-javac-plugin:1.0.0') {
+        transitive = false
+    }
+    annotationProcessor 'net.java.dev.jna:jna-platform:5.13.0'
+    patchedMinecraft 'me.eigenraven.java8unsupported:java-8-unsupported-shim:1.0.0'
 }
 
-spotless {
-	enforceCheck false
-    java {
-        target 'src/*/java/micdoodle8/mods/**/*.java'
-        endWithNewline()
-        trimTrailingWhitespace()
-        removeUnusedImports()
-        indentWithSpaces()
+// noinspection ConfigurationAvoidance
+for (File at : sourceSets.getByName('main').resources.files) {
+    if (at.name.toLowerCase().endsWith('_at.cfg')) {
+        tasks.deobfuscateMergedJarToSrg.accessTransformerFiles.from at
+        tasks.srgifyBinpatchedJar.accessTransformerFiles.from at
     }
 }
 
-license {
-    header = project.file('etc/HEADER')
-    properties {
-        company = 'Team Galacticraft'
-        year = Calendar.getInstance().get(Calendar.YEAR);
+processResources {
+    inputs.property 'version', project.mod_version
+    inputs.property 'mcversion', project.minecraft.version
+    filesMatching(['mcmod.info', 'pack.mcmeta']) { fcd ->
+        fcd.expand(
+                'version': project.version,
+                'mcversion': project.minecraft.version
+        )
     }
-    ignoreFailures = true
-    include '**/*.java'
+    rename '(.+_at.cfg)', 'META_INF/$1'
 }
 
-clean {
-    def filteredDelete = new HashSet<>()
-    for (def toDelete : getDelete()) {
-        for (def f : file(toDelete).listFiles()) {
-            if (f.getName() != "fg_cache") {
-                filteredDelete.add(f)
+jar {
+    manifest {
+        def attribute_map = [:]
+        attribute_map['FMLCorePlugin'] = coremod_plugin_class_name
+        attribute_map['FMLCorePluginContainsFMLMod'] = true
+        attribute_map['ForceLoadAsMod'] = project.gradle.startParameter.taskNames[0] == 'build'
+        attribute_map['FMLAT'] = archives_base_name + '_at.cfg'
+        attributes(attribute_map)
+    }
+
+    from provider {
+        configurations.embed.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+idea {
+    module {
+        inheritOutputDirs true
+        downloadJavadoc true
+        downloadSources true
+    }
+    project {
+        settings {
+            runConfigurations {
+                '1. Run Client'(Gradle) {
+                    taskNames = ['runClient']
+                }
+                '2. Run Server'(Gradle) {
+                    taskNames = ['runServer']
+                }
+                '3. Run Obfuscated Client'(Gradle) {
+                    taskNames = ['runObfClient']
+                }
+                '4. Run Obfuscated Server'(Gradle) {
+                    taskNames = ['runObfServer']
+                }
+            }
+            compiler.javac {
+                afterEvaluate {
+                    javacAdditionalOptions = '-encoding utf8'
+                    moduleJavacAdditionalOptions = [
+                            (project.name + '.main'): tasks.compileJava.options.compilerArgs.collect {
+                                '"' + it + '"'
+                            }.join(' ')
+                    ]
+                }
             }
         }
     }
-    setDelete(filteredDelete)
 }
 
-tokens {
-    withToken('version', version)
-    classes("Constants.java")
-    resources("mcmod.info")
-}
-
-changelog {
-	fromTag('4.0.4')
-}
-
-maven {
-	excludeDependencies('forge', 'jei')
-	artifacts(mavenJar, deobfJar, sourcesJar)
-}
-
-
-modpublishing {
-
-	changelogPath(changelog.changelogFile)
-
-    curseforge('364345') {
-    	if (System.getenv().CI)
-    		apiKey = 'none'
-	    relations {
-	        optional(
-	        	'mekanism',
-	        	'jei', 
-	        	'journeymap',
-	        	'playerapi', 
-	        	'actually-additions',
-	        	'redstone-flux', 
-	        	'applied-energistics-2',
-	        	'biomes-o-plenty', 
-	        	'buildcraft',
-	        	'industrial-craft'
-	        )
-	        incompatible(
-	        	'betterportals' ,
-	        	'vics-modern-warfare-mod'
-	        )
-	    }
-	}
-
-	modrinth('ZnmdXAk2') {
-		if (System.getenv().CI)
-    		token('none')
-		dependencies {
-			// Mekanism
-			optional.version 'KIzASRO5'
-			// JourneyMap
-			optional.version 'vacvhRKp'
-		}
-	}
-}
-
-tasks.withType(GenerateModuleMetadata).configureEach {
-    enabled = false
-}
-
-build {
-    mustRunAfter(clean)
+tasks.named('processIdeaSettings').configure {
+    dependsOn('injectTags')
 }
